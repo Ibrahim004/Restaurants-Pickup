@@ -16,7 +16,7 @@ class Restaurant(models.Model):
     address = models.CharField(max_length=200)
     location = models.ForeignKey('Location', on_delete=models.CASCADE, blank=True, null=True)
     genre = models.CharField(max_length=3, choices=RESTAURANT_TYPE, blank=True, null=True)
-    menu = models.ManyToManyField('Menu')
+    menus = models.ManyToManyField('Menu')
 
 
 class Location(models.Model):
@@ -39,11 +39,21 @@ class Location(models.Model):
     streetAddress = models.CharField(max_length=20)
     postal_code = models.CharField(max_length=10)
 
+    def __str__(self):
+        s = self.streetAddress + ", " + self.city + ', ' + self.province + ', ' + self.country + ', ' + self.postal_code
+        return s
+
 
 class Menu(models.Model):
     title = models.CharField(max_length=150)
     from_time = models.TimeField()
     to_time = models.TimeField()
+
+    def __str__(self):
+        s = self.title
+        if self.restaurant_set.all():
+            s + ': ' + self.restaurant_set.all()[0]
+        return s
 
 
 class FoodItem(models.Model):
@@ -52,12 +62,22 @@ class FoodItem(models.Model):
     price = models.FloatField()
     menu = models.ForeignKey(Menu, on_delete=models.CASCADE)
 
+    def __str__(self):
+        s = self.name
+        if self.description:
+            s += ': ' + self.description
+        return s
+
 
 class Customer(models.Model):
     first_name = models.CharField(max_length=20)
     last_name = models.CharField(max_length=20)
     location = models.ForeignKey(Location, on_delete=models.SET_NULL, null=True)
     phone_number = models.CharField(max_length=16)
+
+    def __str__(self):
+        s = self.first_name + ' ' + self.last_name
+        return s
 
 
 class Order(models.Model):
