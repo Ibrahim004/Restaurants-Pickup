@@ -63,7 +63,7 @@ class Customer(models.Model):
 class Order(models.Model):
     restaurant = models.ForeignKey(Restaurant, on_delete=models.SET_NULL, null=True)
     food_items = models.ManyToManyField(FoodItem)
-    customer = models.ForeignKey(Customer)
+    customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True)
     date_and_time = models.DateTimeField(auto_now_add=True)
     total = models.IntegerField(editable=False)
 
