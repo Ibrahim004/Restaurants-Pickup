@@ -18,6 +18,9 @@ class Restaurant(models.Model):
     genre = models.CharField(max_length=3, choices=RESTAURANT_TYPE, blank=True, null=True)
     menus = models.ManyToManyField('Menu')
 
+    def __str__(self):
+        return self.name
+
 
 class Location(models.Model):
     CANADIAN_PROVINCES = [('BC', 'British Columbia'),
@@ -50,9 +53,11 @@ class Menu(models.Model):
     to_time = models.TimeField()
 
     def __str__(self):
-        s = self.title
-        if self.restaurant_set.all():
-            s + ': ' + self.restaurant_set.all()[0]
+        s = ''
+        if self.restaurant_set.all().count() > 0:
+            s += self.restaurant_set.all()[0].name
+
+        s += ': ' + self.title
         return s
 
 
