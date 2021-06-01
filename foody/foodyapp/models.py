@@ -40,5 +40,22 @@ class Location(models.Model):
     postal_code = models.CharField(max_length=10)
 
 
+class Menu(models.Model):
+    title = models.CharField(max_length=150)
+    from_time = models.TimeField()
+    to_time = models.TimeField()
 
+
+class FoodItem(models.Model):
+    name = models.CharField(max_length=30)
+    description = models.CharField(max_length=70, blank=True, null=True)
+    price = models.FloatField()
+    menu = models.ForeignKey(Menu, on_delete=models.CASCADE)
+
+
+class Customer(models.Model):
+    first_name = models.CharField(max_length=20)
+    last_name = models.CharField(max_length=20)
+    location = models.ForeignKey(Location, on_delete=models.SET_NULL, null=True)
+    phone_number = models.CharField(max_length=16)
 
