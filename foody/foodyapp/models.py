@@ -59,3 +59,23 @@ class Customer(models.Model):
     location = models.ForeignKey(Location, on_delete=models.SET_NULL, null=True)
     phone_number = models.CharField(max_length=16)
 
+
+class Order(models.Model):
+    restaurant = models.ForeignKey(Restaurant, on_delete=models.SET_NULL, null=True)
+    food_items = models.ManyToManyField(FoodItem)
+    customer = models.ForeignKey(Customer)
+    date_and_time = models.DateTimeField(auto_now_add=True)
+    total = models.IntegerField(editable=False)
+
+    def save(self, force_insert=False, force_update=False, using=None,
+             update_fields=None):
+        self.total = self.get_total()
+        super(Order, self).save()
+
+    def get_total(self):
+        total = 0
+        for item in self.food_items:
+            total += item.price
+        return total
+
+
