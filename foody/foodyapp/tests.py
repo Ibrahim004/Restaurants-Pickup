@@ -82,5 +82,19 @@ class RestaurantTest(TestCase):
         # test whether menus contain breakfast_menu
         self.assertIsNotNone(dennys.menus.filter(id=self.breakfast_menu.id))
 
+
 # todo: implement Customer Tests
+class CustomerTest(TestCase):
+
+    def setUp(self) -> None:
+        self.location = Location.objects.create(country='Canada', province='BC', city='Vancouver',
+                                                postal_code='V6T 1Z4', streetAddress='1234 W Broadway')
+
+    def test_can_create_customer(self):
+        customer = Customer(first_name='John', last_name='Doe', location=self.location, phone_number='604-123-4567')
+        customer.save()
+
+        retrieved_customer = Customer.objects.get(id=customer.id)
+        self.assertEquals(customer, retrieved_customer)
+
 # todo: implement Order Tests
