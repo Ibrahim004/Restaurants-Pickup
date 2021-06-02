@@ -8,7 +8,8 @@ class Restaurant(models.Model):
                        ('IND', 'Indian'),
                        ('FST', 'Fast Food'),
                        ('SHI', 'Sushi'),
-                       ('CHN', 'Chinese')]
+                       ('CHN', 'Chinese'),
+                       ('BRK', 'Breakfast')]
     name = models.CharField(max_length=200)
     opening_time = models.TimeField()
     closing_time = models.TimeField()
@@ -88,7 +89,7 @@ class Order(models.Model):
     restaurant = models.ForeignKey(Restaurant, on_delete=models.SET_NULL, null=True)
     food_items = models.ManyToManyField(FoodItem)
     customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True)
-    date_and_time = models.DateTimeField(auto_now_add=True)
+    date_and_time = models.DateTimeField(editable=False, auto_now_add=True)
     order_total = models.FloatField(editable=False)
 
     def __str__(self):
