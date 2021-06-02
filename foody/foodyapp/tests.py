@@ -43,7 +43,7 @@ class FoodItemTest(TestCase):
         breakfast_menu = Menu.objects.get(title='All Day Breakfast')
 
         meatball_pasta = FoodItem(name='Meatballs Pasta', description='Italian style meatball pasta',
-                                                 price=22.5, menu=dinner_menu)
+                                  price=22.5, menu=dinner_menu)
         meatball_pasta.save()
         vegetarian_pizza = FoodItem(name='5 veggie pizza', description='Vegetarian pizza with  '
                                                                        'tomatoes, spinach, mushrooms, '
@@ -54,3 +54,33 @@ class FoodItemTest(TestCase):
         all_food_items = FoodItem.objects.all()
         self.assertEquals(all_food_items.count(), 2)
         self.assertEquals(dinner_menu.fooditem_set.all().count(), 2)
+
+
+# todo: implement Restaurant Tests
+class RestaurantTest(TestCase):
+
+    def setUp(self) -> None:
+        self.location = Location.objects.create(country='Canada', province='British Columbia', city='Vancouver',
+                                                streetAddress='1759 W Broadway', postal_code='V6J 1Y2')
+        self.breakfast_menu = Menu.objects.create(title='All Day Breakfast', from_time=time(hour=7),
+                                                  to_time=time(hour=23))
+
+        self.eggs = FoodItem.objects.create(name='Eggs', description='world famous eggs with 2 biscuits', price=5.99,
+                                            menu=self.breakfast_menu)
+        self.pancakes = FoodItem.objects.create(name='Pancakes', description='Chocolate chip pancakes', price=7.95,
+                                                menu=self.breakfast_menu)
+
+    def test_can_create_a_restaurant(self):
+        dennys = Restaurant(name='Denny\'s Restaurant', opening_time=time(hour=7), closing_time=time(hour=23),
+                            address='1759 W Broadway, Vancouver, BC, V6J 1Y2', location=self.location, genre='FST')
+        dennys.save()
+        dennys.menus.add(self.breakfast_menu)
+
+        retrieved_restaurant = Restaurant.objects.get(id=dennys.id)
+        self.assertEquals(dennys, retrieved_restaurant)
+
+        # test whether menus contain breakfast_menu
+        self.assertIsNotNone(dennys.menus.filter(id=self.breakfast_menu.id))
+
+# todo: implement Customer Tests
+# todo: implement Order Tests
