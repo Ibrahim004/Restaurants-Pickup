@@ -64,7 +64,7 @@ class FoodItem(models.Model):
     name = models.CharField(max_length=30)
     description = models.CharField(max_length=70, blank=True, null=True)
     price = models.FloatField()
-    menu = models.ForeignKey(Menu, on_delete=models.CASCADE)
+    menu = models.ForeignKey(Menu, on_delete=models.CASCADE, null=True)
 
     def __str__(self):
         s = self.name
