@@ -3,7 +3,6 @@ from django.db import models
 
 # Create your models here.
 class Restaurant(models.Model):
-
     RESTAURANT_TYPE = [('ITL', 'Italian'),
                        ('JPN', 'Japanese'),
                        ('IND', 'Indian'),
@@ -90,17 +89,19 @@ class Order(models.Model):
     food_items = models.ManyToManyField(FoodItem)
     customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True)
     date_and_time = models.DateTimeField(auto_now_add=True)
-    total = models.IntegerField(editable=False)
+    order_total = models.FloatField(default=-1, editable=False)
 
-    def save(self, force_insert=False, force_update=False, using=None,
-             update_fields=None):
-        self.total = self.get_total()
-        super(Order, self).save()
+    @property
+    def total(self):
+        if self.order_total > -1:
+            return self.order_total
+        else:
+            total = 0.0
+            for item in self.food_items.all():
+                total += item.price
+            self.order_total = total
+            self.save()
+            return total
 
-    def get_total(self):
-        total = 0
-        for item in self.food_items:
-            total += item.price
-        return total
-
-
+    def __str__(self):
+        return "Order number: " + str(self.id)
