@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Menu Details</title>
+</head>
+<body>
+<div>
+    <div>
+        {% if restaurant %}
+        <h1 style="display:inline">{{restaurant.name}}</h1>
+        <span><strong>(Closes at: {{restaurant.closing_time}})</strong></span>
+        {% endif %}
+    </div>
+{% if menu %}
+    <div>
+        <h2>{{menu.title}}</h2>
+        <ul>
+            {% for fooditem in menu.fooditem_set.all %}
+            <li>
+                {{fooditem.name}} ({{fooditem.description}}) {{fooditem.price}}$
+                <span><button>+</button><span>0</span><button>-</button></span>
+            </li>
+
+            {% endfor %}
+        </ul>
+    </div>
+{% endif %}
+</div>
+</body>
+</html>
