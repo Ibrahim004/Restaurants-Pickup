@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Restaurant Page</title>
+</head>
+<body>
+{% if restaurant %}
+<div>
+<div>
+    <h1>{{restaurant.name}}</h1>
+    <p>{{restaurant.address}}</p>
+</div>
+    <div>
+    <span><strong>Opens: </strong>{{restaurant.opening_time}}</span>
+    <br>
+    <span><strong>Closes: </strong>{{restaurant.closing_time}}</span>
+    </div>
+    {% if restaurant.menus %}
+    <div>
+        <h2>Menus:</h2>
+        <ul>
+            {% for menu in restaurant.menus.all %}
+            <li>
+                <a href="{% url 'menu_details' menu.id %}">
+                    <strong>{{menu.title}}</strong> (from {{menu.from_time}} to {{menu.to_time}})
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+</body>
+</html>

@@ -3,8 +3,6 @@ from django.http import HttpResponse
 from .models import Restaurant
 
 
-# Create your views here.
-
 def index(request):
     return HttpResponse("Hello world. This is the main page for Foody!")
 
@@ -15,4 +13,9 @@ def get_restaurants(request):
 
 
 def get_restaurant_details(request, restaurant_id):
+    restaurant = Restaurant.objects.get(id=restaurant_id)
+    return render(request, 'foodyapp/restaurant_details.html', {'restaurant': restaurant})
+
+
+def get_menu_details(request, menu_id):
     pass
