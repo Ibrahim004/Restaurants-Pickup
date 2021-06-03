@@ -19,13 +19,36 @@
             {% for fooditem in menu.fooditem_set.all %}
             <li>
                 {{fooditem.name}} ({{fooditem.description}}) {{fooditem.price}}$
-                <span><button>+</button><span>0</span><button>-</button></span>
+                <span>
+                    <button type="button" onclick="incrementCount({{fooditem.id}})">+</button>
+                    <button type="button" onclick="decrementCount({{fooditem.id}})">-</button>
+                    <button type="button" disabled id="{{fooditem.id}}" name="{{fooditem.name}}" value="0" form="order_items_form">0</button>
+                </span>
             </li>
 
             {% endfor %}
         </ul>
+        <button type="submit" form="order_items_form">Review Order</button>
     </div>
+<form method="post" action="{% url 'review_order' %}" style="hidden" id="order_items_form">
+</form>
 {% endif %}
 </div>
+<script>
+    function incrementCount(foodItemId) {
+        button = document.getElementById(foodItemId);
+        button.value++;
+        button.innerHTML = (button.value);
+    }
+
+    function decrementCount(foodItemId) {
+        button = document.getElementById(foodItemId)
+        if(button.value == 0){
+            return;
+        }
+        button.value--;
+        button.innerHTML = (button.value)
+    }
+</script>
 </body>
 </html>

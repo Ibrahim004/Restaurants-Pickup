@@ -21,3 +21,7 @@ def get_menu_details(request, menu_id):
     menu = Menu.objects.get(id=menu_id)
     restaurant = menu.restaurant_set.all()[0]
     return render(request, 'foodyapp/menu_details.html', {'menu': menu, 'restaurant': restaurant})
+
+
+def review_order(request):
+    pass
