@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>List of Restaurants</title>
+</head>
+<body>
+{% if list_of_restaurants %}
+<div>
+    <h1>List of available restaurants:</h1>
+    <ul>
+        {% for restaurant in list_of_restaurants %}
+        <div>
+            <li>
+                <a href="{% url 'restaurant_details' restaurant.id %}">
+                    <div>
+                    {{restaurant.name}}
+                    <br>
+                    Address: {{restaurant.address}}
+                    </div>
+                    <div>
+                    Opens at: {{restaurant.opening_time}}
+                    <br>
+                    Closes at: {{restaurant.closing_time}}
+                    </div>
+                    <div>
+                    Type: {{restaurant.get_genre_display}}
+                    </div>
+                </a>
+            </li>
+        </div>
+        {% endfor %}
+    </ul>
+</div>
+{% endif %}
+</body>
+</html>
