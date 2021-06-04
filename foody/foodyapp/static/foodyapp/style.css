@@ -1,0 +1,10 @@
+
+.restaurant_listing {
+    border-style:solid;
+}
+
+.restaurant_listing a {
+    text-decoration: none;
+    color: green;
+}
+

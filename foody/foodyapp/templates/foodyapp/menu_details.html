@@ -31,6 +31,7 @@
         <button type="submit" form="order_items_form">Review Order</button>
     </div>
 <form method="post" action="{% url 'review_order' %}" style="hidden" id="order_items_form">
+    {% csrf_token %}
 </form>
 {% endif %}
 </div>

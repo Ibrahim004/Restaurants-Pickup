@@ -1,0 +1,31 @@
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'foodyapp/style.css' %}">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Restaurants</title>
+</head>
+<body>
+{% if restaurants %}
+<h1>List of Restaurants</h1>
+<div>
+{% for restaurant in restaurants %}
+<div class="restaurant_listing">
+    <a href="{% url 'restaurant_details' restaurant.id %}">
+    <h3>{{restaurant.name}}</h3>
+    <p>{{restaurant.address}}</p>
+    <br>
+    Closes at: {{restaurant.closing_time}}
+    <br>
+    {% if rating %}
+    Rating: {{rating.rating}}/5 based on {{rating.num_ratings}} review{{rating.num_ratings|pluralize}}
+    {% endif %}
+    </a>
+</div>
+    <br>
+{% endfor %}
+</div>
+{% endif %}
+</body>
+</html>

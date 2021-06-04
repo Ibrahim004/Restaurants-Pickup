@@ -3,6 +3,7 @@ from django.db import models
 
 # Create your models here.
 class Restaurant(models.Model):
+    # todo: add rating for restaurant
     RESTAURANT_TYPE = [('ITL', 'Italian'),
                        ('JPN', 'Japanese'),
                        ('IND', 'Indian'),
@@ -91,6 +92,7 @@ class Order(models.Model):
     customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True)
     date_and_time = models.DateTimeField(editable=False, auto_now_add=True)
     order_total = models.FloatField(editable=False)
+    # todo: implement rating field to allow customer to add rating to order
 
     def __str__(self):
         return "Order number: " + str(self.id)
