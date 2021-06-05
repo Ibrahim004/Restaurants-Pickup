@@ -15,6 +15,9 @@
 {% if menu %}
     <div>
         <h2>{{menu.title}}</h2>
+        <form method="post" action="{% url 'review_order' restaurant.id menu.id %}" style="hidden" id="order_items_form">
+            {% csrf_token %}
+<!--            <input type="hidden" id="">-->
         <ul>
             {% for fooditem in menu.fooditem_set.all %}
             <li>
@@ -22,18 +25,41 @@
                 <span>
                     <button type="button" onclick="incrementCount({{fooditem.id}})">+</button>
                     <button type="button" onclick="decrementCount({{fooditem.id}})">-</button>
-                    <button type="button" disabled id="{{fooditem.id}}" name="{{fooditem.name}}" value="0" form="order_items_form">0</button>
+                    <input type="hidden" name="quantity" value="0">
+                    <button type="button" disabled id="{{fooditem.id}}" name="{{fooditem.name}}" value="0">0</button>
                 </span>
             </li>
 
             {% endfor %}
         </ul>
         <button type="submit" form="order_items_form">Review Order</button>
+        </form>
     </div>
-<form method="post" action="{% url 'review_order' %}" style="hidden" id="order_items_form">
-    {% csrf_token %}
-</form>
 {% endif %}
+</div>
+
+<div id="order_details_div" class="order-details" hidden>
+<h1>Confirm Order Details</h1>
+<div>
+    <div><p>Restaurant: {{restaurant.name}}</p></div>
+    <div>
+        {% if list_of_items %}
+        <p>Items:</p>
+        <ul>
+            {% for item in list_of_items %}
+            <li>
+                {{item.quantity}} {{item.name}} {{item.price}}$
+            </li>
+            {% endfor %}
+        </ul>
+        <p>Total: {{total}}</p>
+        {% endif %}
+    </div>
+    <div>
+        <button>Edit</button>
+        <button>Confirm</button>
+    </div>
+</div>
 </div>
 <script>
     function incrementCount(foodItemId) {

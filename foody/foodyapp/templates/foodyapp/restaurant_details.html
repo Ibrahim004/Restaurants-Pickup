@@ -1,3 +1,5 @@
+{% load static %}
+<link rel="stylesheet" type="text/css" href="{% static 'foodyapp/restaurant_details.css' %}">
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -22,7 +24,7 @@
         <ul>
             {% for menu in restaurant.menus.all %}
             <li>
-                <a href="{% url 'menu_details' menu.id %}">
+                <a class="menu_link" href="{% url 'menu_details' menu.id %}">
                     <strong>{{menu.title}}</strong> (from {{menu.from_time}} to {{menu.to_time}})
                 </a>
             </li>

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title id="document-id">Menu</title>
+</head>
+<body>
+{% if restaurant %}
+<div id="menu-details">
+    <div>
+        <h1 style="display:inline">{{restaurant.name}}</h1>
+        <span><strong>(Closes at: {{restaurant.closing_time}})</strong></span>
+    </div>
+    {% if menu %}
+    <form method="post" action="{% url 'submit_order' restaurant.id %}">
+        {% csrf_token %}
+        <h2>{{menu.title}}</h2>
+        <ul>
+            {% for fooditem in menu.fooditem_set.all %}
+            <li>
+                {{fooditem.name}} ({{fooditem.description}}) {{fooditem.price}}$
+                <button type="button" onclick="incrementCount({{fooditem.id}})">+</button>
+                <button type="button" onclick="decrementCount({{fooditem.id}})">-</button>
+                <button id="displayButton{{fooditem.id}}" disabled>0</button>
+                <input id="{{fooditem.id}}" hidden name="{{fooditem.name}}" value="0">
+            </li>
+            {% endfor %}
+        </ul>
+
+        <button type="button" onclick="displayOrderDetails()">Review Order</button>
+    </form>
+    {% endif %}
+</div>
+{% endif %}
+
+<div style=''>
+    <h1>Confirm Order Details</h1>
+    <h2 style="font-weight:normal">Restaurant: {{restaurant.name}}</h2>
+    <div>
+        <span>Items:</span>
+        <ul>
+            {% for fooditem in menu.fooditem_set.all %}
+            <li>
+                <span id="quantity{{fooditem.id}}"></span> {{fooditem.name}} <span id="price{{fooditem.id}}" value="0"></span>
+            </li>
+            {% endfor %}
+        </ul>
+        <span id="total">Total: </span>
+        <div>
+            <button type="button">Edit</button>
+            <button type="button">Confirm</button>
+        </div>
+    </div>
+</div>
+<script>
+    function incrementCount(id){
+        element = document.getElementById(id);
+        element.value++;
+        document.getElementById('displayButton' + id).innerHTML = element.value;
+    }
+
+    function decrementCount(id){
+        element = document.getElementById(id);
+        if(element.value > 0){
+            element.value--;
+            document.getElementById('displayButton' + id).innerHTML = element.value;
+        }
+    }
+
+    function displayOrderDetails(){
+        document.getElementById('document-id').innerHTML = 'Order Details';
+        document.getElementById('menu-details').style.display = 'none';
+
+
+        "{% for item in menu.fooditem_set.all %}"
+            var id = "{{item.id}}";
+
+            setQuantity(id);
+
+            var price = "{{item.price}}";
+
+            setPrice(id, price);
+
+        "{% endfor %}"
+
+        // set the total
+        setTotal();
+    }
+    function setQuantity(id){
+        quantity = document.getElementById(id).value;
+        document.getElementById('quantity'+id).innerHTML=quantity;
+    }
+
+    function setPrice(id, itemPrice){
+        quantity = document.getElementById(id).value;
+        var total = quantity * itemPrice;
+        var element = document.getElementById('price'+id);
+        element.value = total
+        element.innerHTML = total + '$';
+    }
+
+    function setTotal(){
+        var total = 0;
+        "{% for item in menu.fooditem_set.all %}"
+            var id = "{{item.id}}";
+            var subTotal = document.getElementById('price'+id).value;
+            console.log(subTotal);
+            total+= (subTotal);
+        "{% endfor %}"
+        document.getElementById('total').innerHTML = "Total: " + total.toFixed(2) + "$";
+    }
+</script>
+</body>
+</html>
