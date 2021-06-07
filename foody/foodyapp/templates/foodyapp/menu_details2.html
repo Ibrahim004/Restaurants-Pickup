@@ -12,7 +12,7 @@
         <span><strong>(Closes at: {{restaurant.closing_time}})</strong></span>
     </div>
     {% if menu %}
-    <form method="post" action="{% url 'submit_order' restaurant.id %}" id="order-form">
+    <form method="post" action="{% url 'submit_order' restaurant.id menu.id %}" id="order-form">
         {% csrf_token %}
         <h2>{{menu.title}}</h2>
         <ul>

@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
-from .models import Restaurant, Menu
+from .models import Restaurant, Menu, Order
 
 
 def index(request):
@@ -48,12 +48,33 @@ def review_order(request, restaurant_id, menu_id):
     return render(request, 'foodyapp/order_details.html', context)
 
 
-def submit_order(request, restaurant_id):
-    pass
+def submit_order(request, restaurant_id, menu_id):
+    # take order details
+    menu = Menu.objects.get(id=menu_id)
+    restaurant = Restaurant.objects.get(id=restaurant_id)
 
-# todo: implement function to submit order to restaurant
+    items = []
+    quantity = []
 
-# todo: improve UI for listing all restaurants
+    for fooditem in menu.fooditem_set.all():
+        count = int(request.POST[fooditem.name])
+        if count > 0:
+            items.append(fooditem)
+            quantity.append(count)
+
+    # calculate subtotal
+    subtotal = 0
+    for i in range(len(items)):
+        subtotal += (items[i].price * quantity[i])
+
+    # create an order record
+    order = Order(restaurant, order_total=subtotal)
+    order.save()
+    order.food_items.set(items)
+
+    # todo: send order details to restaurant
+
+    # todo: send confirmation to customer
 
 # todo: add functionality to display restaurants sorted by distance
 
