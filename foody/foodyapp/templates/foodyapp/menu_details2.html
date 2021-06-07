@@ -6,7 +6,7 @@
 </head>
 <body>
 {% if restaurant %}
-<div id="menu-details">
+<div id="menu-details" style="display:block;">
     <div>
         <h1 style="display:inline">{{restaurant.name}}</h1>
         <span><strong>(Closes at: {{restaurant.closing_time}})</strong></span>
@@ -33,7 +33,7 @@
 </div>
 {% endif %}
 
-<div style='' id="order-details">
+<div style='display:none;' id="order-details">
     <h1>Confirm Order Details</h1>
     <h2 style="font-weight:normal">Restaurant: {{restaurant.name}}</h2>
     <div>
@@ -115,7 +115,7 @@
 
     function editItems(){
         // change webpage title
-        document.getElementById('document-id').innerHTML = 'Menu Details';
+        document.getElementById('document-id').innerHTML = 'Menu';
 
         // show menu and hide order details
         document.getElementById('order-details').style.display = 'none';
