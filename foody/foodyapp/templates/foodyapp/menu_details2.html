@@ -12,7 +12,7 @@
         <span><strong>(Closes at: {{restaurant.closing_time}})</strong></span>
     </div>
     {% if menu %}
-    <form method="post" action="{% url 'submit_order' restaurant.id %}">
+    <form method="post" action="{% url 'submit_order' restaurant.id %}" id="order-form">
         {% csrf_token %}
         <h2>{{menu.title}}</h2>
         <ul>
@@ -33,7 +33,7 @@
 </div>
 {% endif %}
 
-<div style=''>
+<div style='' id="order-details">
     <h1>Confirm Order Details</h1>
     <h2 style="font-weight:normal">Restaurant: {{restaurant.name}}</h2>
     <div>
@@ -45,10 +45,10 @@
             </li>
             {% endfor %}
         </ul>
-        <span id="total">Total: </span>
+        <span id="total">Subtotal: </span>
         <div>
-            <button type="button">Edit</button>
-            <button type="button">Confirm</button>
+            <button type="button" onclick="editItems()">Edit</button>
+            <button type="submit" form="order-form">Confirm Order</button>
         </div>
     </div>
 </div>
@@ -68,9 +68,12 @@
     }
 
     function displayOrderDetails(){
+        // change webpage title
         document.getElementById('document-id').innerHTML = 'Order Details';
-        document.getElementById('menu-details').style.display = 'none';
 
+        // hide menu and show order details
+        document.getElementById('menu-details').style.display = 'none';
+        document.getElementById('order-details').style.display = 'block';
 
         "{% for item in menu.fooditem_set.all %}"
             var id = "{{item.id}}";
@@ -107,7 +110,17 @@
             console.log(subTotal);
             total+= (subTotal);
         "{% endfor %}"
-        document.getElementById('total').innerHTML = "Total: " + total.toFixed(2) + "$";
+        document.getElementById('total').innerHTML = "Subtotal: " + total.toFixed(2) + "$";
+    }
+
+    function editItems(){
+        // change webpage title
+        document.getElementById('document-id').innerHTML = 'Menu Details';
+
+        // show menu and hide order details
+        document.getElementById('order-details').style.display = 'none';
+        document.getElementById('menu-details').style.display = 'block';
+
     }
 </script>
 </body>
