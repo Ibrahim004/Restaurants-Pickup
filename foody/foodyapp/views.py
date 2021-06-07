@@ -73,6 +73,7 @@ def submit_order(request, restaurant_id, menu_id):
     order = Order(restaurant=restaurant, order_total=subtotal)
     order.save()
     order.food_items.set(items)
+    order.save()
 
     # todo: send order details to restaurant
 

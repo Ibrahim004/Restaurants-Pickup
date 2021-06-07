@@ -95,7 +95,29 @@ class ViewTest(TestCase):
 
     def test_submit_order_should_create_new_order(self):
         restaurant = create_restaurant()
-        pass
+        menu = restaurant.menus.first()
+        item_quantity = dict()
 
-    def test_submit_order_redirects_to_new_page(self):
-        pass
+        # order 2 of each item on menu
+        total = 0
+        for fooditem in menu.fooditem_set.all():
+            item_quantity[fooditem.name] = 2
+            total += (2 * fooditem.price)
+
+        response = self.client.post(reverse('submit_order', args=(restaurant.id, menu.id,)), item_quantity)
+
+        # check we are redirected correctly
+        self.assertEqual(response.status_code, 302)
+
+        order = Order.objects.get(restaurant=restaurant)
+
+        # check order was created in the database
+        self.assertIsNotNone(order)
+
+        # check all items were added
+        all_items = order.food_items.all()
+        for item in menu.fooditem_set.all():
+            self.assertTrue(item in all_items)
+
+        # check that total is correct
+        self.assertEqual(total, order.order_total)
