@@ -1,6 +1,7 @@
 from django.test import TestCase
 from .models import *
 from datetime import time
+from django.shortcuts import reverse
 
 
 class LocationTest(TestCase):
@@ -96,62 +97,7 @@ class CustomerTest(TestCase):
         self.assertEquals(customer, retrieved_customer)
 
 
-class OrderTest(TestCase):
 
-    def setUp(self) -> None:
-        self.create_restaurant()
-        self.create_customer()
 
-    def test_can_create_order_and_get_total(self):
-        order = Order(restaurant=self.restaurant, customer=self.customer, order_total=0)
-        order.save()
 
-        # order everything from the restaurant
-        food_items = self.restaurant.menus.all()[0].fooditem_set.all()
-        order.food_items.set(food_items)
 
-        total = 0
-        for item in food_items:
-            total += item.price
-
-        order.order_total = total
-        order.save()
-
-        retrieved_order = Order.objects.get(id=order.id)
-        self.assertEquals(retrieved_order, order)
-        self.assertTrue(retrieved_order.order_total > 0)
-
-    def create_restaurant(self):
-        self.create_restaurant_location()
-        self.create_restaurant_menu()
-
-        self.restaurant = Restaurant(name="iHop", opening_time=time(hour=7), closing_time=time(hour=20),
-                                     address='514 8th Ave, New Westminster, BC V3L 2Y3',
-                                     location=self.restaurant_location, genre='Breakfast')
-        self.restaurant.save()
-        self.restaurant.menus.add(self.restaurant_menu)
-        self.restaurant.save()
-
-    def create_customer(self):
-        self.create_customer_location()
-        self.customer = Customer.objects.create(first_name="John", last_name="Doe", location=self.customer_location,
-                                                phone_number='123-456-7900')
-
-    def create_customer_location(self):
-        self.customer_location = Location.objects.create(country='Canada', province='BC', city='Vancouver',
-                                                         streetAddress='1234 W Broadway', postal_code='V6T 1Z4')
-
-    def create_restaurant_location(self):
-        self.restaurant_location = Location.objects.create(country='Canada', province='BC', city='New Westminster',
-                                                           streetAddress='514 8th Ave', postal_code='V3L 2Y3')
-
-    def create_restaurant_menu(self):
-        self.restaurant_menu = Menu.objects.create(title='All Day Breakfast', from_time=time(hour=7),
-                                                   to_time=time(hour=20))
-
-        pancakes = FoodItem(name='Pancakes', description='World famous pancakes', price=12.99,
-                            menu=self.restaurant_menu)
-        pancakes.save()
-
-        burger = FoodItem(name='Burger', description='We have burgers now', price=5.99, menu=self.restaurant_menu)
-        burger.save()
