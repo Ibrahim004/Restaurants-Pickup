@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 
 # Create your models here.
@@ -11,6 +12,8 @@ class Restaurant(models.Model):
                        ('SHI', 'Sushi'),
                        ('CHN', 'Chinese'),
                        ('BRK', 'Breakfast')]
+
+    user = models.OneToOneField(User, on_delete=models.SET_NULL, null=True)
     name = models.CharField(max_length=200)
     opening_time = models.TimeField()
     closing_time = models.TimeField()
@@ -76,6 +79,7 @@ class FoodItem(models.Model):
 
 
 class Customer(models.Model):
+    user = models.OneToOneField(User, on_delete=models.SET_NULL, null=True)
     first_name = models.CharField(max_length=20)
     last_name = models.CharField(max_length=20)
     location = models.ForeignKey(Location, on_delete=models.SET_NULL, null=True)
