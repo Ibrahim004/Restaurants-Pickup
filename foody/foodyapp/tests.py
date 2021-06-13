@@ -2,6 +2,7 @@ from django.test import TestCase
 from .models import *
 from datetime import time
 from django.shortcuts import reverse
+from django.contrib.auth.forms import UserCreationForm
 
 
 class LocationTest(TestCase):
@@ -57,7 +58,7 @@ class FoodItemTest(TestCase):
         self.assertEquals(dinner_menu.fooditem_set.all().count(), 2)
 
 
-class RestaurantTest(TestCase):
+class RestaurantModelTest(TestCase):
 
     def setUp(self) -> None:
         self.location = Location.objects.create(country='Canada', province='British Columbia', city='Vancouver',
@@ -96,8 +97,28 @@ class CustomerTest(TestCase):
         retrieved_customer = Customer.objects.get(id=customer.id)
         self.assertEquals(customer, retrieved_customer)
 
+    def test_can_create_customer_with_user(self):
+        pass
 
 
+class RestaurantSignUpTest(TestCase):
 
+    def test_can_get_restaurant_signup_form_with_correct_fields(self):
+        response = self.client.get(reverse('restaurant_signup'))
 
+        self.assertEqual(response.status_code, 200)
 
+        form = response.context['form']
+        self.assertIsNotNone(form)
+        x = UserCreationForm()
+
+        self.assertTrue(isinstance(form, UserCreationForm))
+        self.assertIsNotNone(form.fields['email'])
+
+    def test_can_create_account_using_restaurant_signup_view(self):
+        user = {'username': 'john1234', 'email': 'example@example.com', 'password1': 'mnbg1045',
+                'password2': 'mnbg1045'}
+
+        response = self.client.post(reverse('restaurant_signup'), user)
+
+        self.assertEqual(response.status_code, 302)

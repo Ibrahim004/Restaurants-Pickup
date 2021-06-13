@@ -1,6 +1,10 @@
 from django.shortcuts import render, reverse
 from django.http import HttpResponse, HttpResponseRedirect
 from .models import Restaurant, Menu, Order
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
+from django.contrib.auth import login
+from .forms import RestaurantSignUpForm
 
 
 def index(request):
@@ -89,3 +93,30 @@ def submit_order(request, restaurant_id, menu_id):
 
 def order_confirmation(request):
     return HttpResponse("Your order was submitted!")
+
+
+def restaurant_signup(request):
+    if request.method == 'POST':
+        # take the post data and validate it
+        form = RestaurantSignUpForm(request.POST)
+
+        if form.is_valid():
+            # sign the user up for an account
+            user = User.objects.create_user(form.cleaned_data['username'], form.cleaned_data['email'],
+                                            form.cleaned_data['password1'])
+            user.save()
+            login(request, user)
+            return HttpResponseRedirect(reverse('restaurant_add_info'))
+
+    else:
+        form = RestaurantSignUpForm()
+
+    return render(request, 'foodyapp/restaurant_signup.html', {'form': form})
+
+
+def restaurant_login(request):
+    pass
+
+
+def add_restaurant_info(request):
+    pass
