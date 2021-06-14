@@ -4,7 +4,7 @@ from .models import Restaurant, Menu, Order
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.contrib.auth import login
-from .forms import RestaurantSignUpForm
+from .forms import RestaurantSignUpForm, RestaurantDetailsForm
 
 
 def index(request):
@@ -119,4 +119,21 @@ def restaurant_login(request):
 
 
 def add_restaurant_info(request):
+    user = request.user
+
+    if request.method == 'POST':
+        form = RestaurantDetailsForm(request.POST)
+
+        if form.is_valid():
+            form.save()
+
+            return HttpResponseRedirect(reverse('restaurant_add_menu'))
+    else:
+        form = RestaurantDetailsForm()
+
+    return render(request, 'foodyapp/restaurant_info_form.html', {'form': form, 'user': user})
+
+
+def add_menu_info(request):
+    return HttpResponse('This is the menu infor page. Step 3/3!')
     pass

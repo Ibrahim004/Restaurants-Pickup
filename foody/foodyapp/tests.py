@@ -110,7 +110,6 @@ class RestaurantSignUpTest(TestCase):
 
         form = response.context['form']
         self.assertIsNotNone(form)
-        x = UserCreationForm()
 
         self.assertTrue(isinstance(form, UserCreationForm))
         self.assertIsNotNone(form.fields['email'])
@@ -122,3 +121,14 @@ class RestaurantSignUpTest(TestCase):
         response = self.client.post(reverse('restaurant_signup'), user)
 
         self.assertEqual(response.status_code, 302)
+
+    def test_can_get_restaurant_info_form(self):
+        response = self.client.get(reverse('restaurant_add_info'))
+        self.assertEqual(response.status_code, 200)
+
+        form = response.context['form']
+        self.assertIsNotNone(form)
+
+        all_fields = ['name', 'address', 'opening_time', 'closing_time', 'genre']
+
+        self.assertEqual(all_fields, form.Meta.fields)
