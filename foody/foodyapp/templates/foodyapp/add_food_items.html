@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add Items</title>
+    <style>
+    table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+    padding:15px;
+    }
+</style>
+</head>
+<body>
+<button>{{ user.email }}</button><br/>
+<h1>{{ menu.title }}</h1>
+<table>
+    <tbody id="food-items-table">
+    <tr>
+        <th>Name</th>
+        <th>Description</th>
+        <th>Price</th>
+    </tr>
+    </tbody>
+</table>
+<br/>
+
+<form hidden method="post" action="{% url 'add_food_items' menu.id %}" id="food-items-form">
+    {% csrf_token %}
+</form>
+
+<form id="food-item-input-form" action="get">
+    <label for="item-name">Item Name: </label>
+    <input type="text" maxlength="30" value="" id="item-name" required><br/>
+
+    <label for="item-description">Item Description: </label>
+    <input type="text" maxlength="70" value="" id="item-description"><br/>
+
+    <label for="item-price">Item Price: </label>
+    <input type="number" id="item-price" step="0.01" min="0" required><br/>
+
+    <button type="button" onclick="add_item();">Add Item</button>
+</form>
+
+<br/>
+<button type="submit" form="food-items-form">Submit Menu</button>
+
+<script>
+    var counter = 0;
+    function add_item(){
+        let table = document.getElementById('food-items-table');
+
+        // create new row at the end of table
+        let newRow = table.insertRow(-1);
+
+        // create new cells for name, description, and price
+        let nameCell = newRow.insertCell(0);
+        let descriptionCell = newRow.insertCell(1);
+        let priceCell = newRow.insertCell(2);
+
+        // retrieve values to set new cells
+        let name = document.getElementById('item-name').value;
+        let description = document.getElementById('item-description').value;
+        let price = document.getElementById('item-price').value;
+
+        // set cells to correct values
+        nameCell.appendChild(document.createTextNode(name));
+        descriptionCell.appendChild(document.createTextNode(description));
+        priceCell.appendChild(document.createTextNode(price));
+
+
+        // create new inputs with the given values
+        addInput('food_item_name' + counter, name);
+        addInput('food_item_description' + counter, description);
+        addInput('food_item_price' + counter, price);
+        counter++;
+
+
+        // clear input field values
+        document.getElementById('food-item-input-form').reset();
+    }
+
+    // adds new input to food-items-form
+    function addInput(name, value){
+        let form = document.getElementById('food-items-form');
+
+        let input = document.createElement('input');
+        input.type = 'text';
+        input.name = name;
+        input.value = value;
+        input.hidden = 'true';
+
+        form.appendChild(input);
+    }
+
+
+</script>
+</body>
+</html>

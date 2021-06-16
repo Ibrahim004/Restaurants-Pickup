@@ -21,7 +21,7 @@ class MenuDetailsForm(forms.ModelForm):
         fields = ['title', 'from_time', 'to_time']
 
 
-class FoodItemDetailsForm(forms.ModelForm):
-    class Meta:
-        model = FoodItem
-        fields = ['name', 'description', 'price']
+# class FoodItemDetailsForm(forms.ModelForm):
+#     class Meta:
+#         model = FoodItem
+#         fields = ['name', 'description', 'price']

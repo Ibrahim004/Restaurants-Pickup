@@ -6,76 +6,18 @@
 </head>
 <body>
 <div>
-    <div>
-        {% if restaurant %}
-        <h1 style="display:inline">{{restaurant.name}}</h1>
-        <span><strong>(Closes at: {{restaurant.closing_time}})</strong></span>
-        {% endif %}
-    </div>
 {% if menu %}
     <div>
         <h2>{{menu.title}}</h2>
-        <form method="post" action="{% url 'review_order' restaurant.id menu.id %}" style="hidden" id="order_items_form">
-            {% csrf_token %}
-<!--            <input type="hidden" id="">-->
         <ul>
             {% for fooditem in menu.fooditem_set.all %}
             <li>
-                {{fooditem.name}} ({{fooditem.description}}) {{fooditem.price}}$
-                <span>
-                    <button type="button" onclick="incrementCount({{fooditem.id}})">+</button>
-                    <button type="button" onclick="decrementCount({{fooditem.id}})">-</button>
-                    <input type="hidden" name="quantity" value="0">
-                    <button type="button" disabled id="{{fooditem.id}}" name="{{fooditem.name}}" value="0">0</button>
-                </span>
+                {{fooditem.name}} ({{fooditem.description}}) {{fooditem.price}}
             </li>
-
             {% endfor %}
         </ul>
-        <button type="submit" form="order_items_form">Review Order</button>
-        </form>
     </div>
 {% endif %}
 </div>
-
-<div id="order_details_div" class="order-details" hidden>
-<h1>Confirm Order Details</h1>
-<div>
-    <div><p>Restaurant: {{restaurant.name}}</p></div>
-    <div>
-        {% if list_of_items %}
-        <p>Items:</p>
-        <ul>
-            {% for item in list_of_items %}
-            <li>
-                {{item.quantity}} {{item.name}} {{item.price}}$
-            </li>
-            {% endfor %}
-        </ul>
-        <p>Total: {{total}}</p>
-        {% endif %}
-    </div>
-    <div>
-        <button>Edit</button>
-        <button>Confirm</button>
-    </div>
-</div>
-</div>
-<script>
-    function incrementCount(foodItemId) {
-        button = document.getElementById(foodItemId);
-        button.value++;
-        button.innerHTML = (button.value);
-    }
-
-    function decrementCount(foodItemId) {
-        button = document.getElementById(foodItemId)
-        if(button.value == 0){
-            return;
-        }
-        button.value--;
-        button.innerHTML = (button.value)
-    }
-</script>
 </body>
 </html>
