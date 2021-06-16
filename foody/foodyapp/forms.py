@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-from .models import Restaurant
+from .models import Restaurant, Menu, FoodItem
 
 
 class RestaurantSignUpForm(UserCreationForm):
@@ -13,3 +13,15 @@ class RestaurantDetailsForm(forms.ModelForm):
     class Meta:
         model = Restaurant
         fields = ['name', 'address', 'opening_time', 'closing_time', 'genre']
+
+
+class MenuDetailsForm(forms.ModelForm):
+    class Meta:
+        model = Menu
+        fields = ['title', 'from_time', 'to_time']
+
+
+class FoodItemDetailsForm(forms.ModelForm):
+    class Meta:
+        model = FoodItem
+        fields = ['name', 'description', 'price']

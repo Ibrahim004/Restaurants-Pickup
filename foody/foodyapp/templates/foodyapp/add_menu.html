@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add Menu</title>
+</head>
+<body>
+<h1>Add Menus</h1>
+<button>{{ user.email }}</button>
+<form method="post" action="{% url 'restaurant_add_menu' %}">
+    {% csrf_token %}
+    {{ form.as_p }}
+
+    <input type="submit" value="Add Items">
+</form>
+</body>
+</html>

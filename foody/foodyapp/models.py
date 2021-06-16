@@ -52,9 +52,9 @@ class Location(models.Model):
 
 
 class Menu(models.Model):
-    title = models.CharField(max_length=150)
-    from_time = models.TimeField()
-    to_time = models.TimeField()
+    title = models.CharField(max_length=150, verbose_name='Menu Title')
+    from_time = models.TimeField(verbose_name='Starts at')
+    to_time = models.TimeField(verbose_name="Ends at")
 
     def __str__(self):
         s = ''
