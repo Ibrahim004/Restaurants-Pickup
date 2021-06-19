@@ -3,6 +3,7 @@ from .models import *
 from datetime import time
 from django.shortcuts import reverse
 from django.contrib.auth.forms import UserCreationForm
+from .exceptions import FieldFormatIncorrect
 
 
 class LocationTest(TestCase):
@@ -214,10 +215,33 @@ class RestaurantSignUpTest(TestCase):
         self.assertEqual(response.status_code, 403)
 
     def test_should_return_error_if_submitting_food_items_in_wrong_format(self):
-        pass
+        # login user
+        did_login = self.client.login(username=self.user_username, password=self.user_password)
+        self.assertTrue(did_login)
+
+        # create restaurant and menu
+        self.create_restaurant(self.user)
+        self.create_menu(self.restaurant)
+
+        # food items in wrong format
+        food_items = {'name0': 'fries', 'description0': 'fries', 'price': '2.99', 'name1': 'burger',
+                      'description1': 'burger', 'price1': '4.99'}
+
+        # try to submit food items in wrong format
+        self.assertRaises(FieldFormatIncorrect,
+                          lambda: self.client.post(reverse('add_food_items', args=(self.menu.id,)), food_items))
 
     def test_should_be_able_to_get_food_items_page(self):
-        pass
+        # login user
+        did_login = self.client.login(username=self.user_username, password=self.user_password)
+        self.assertTrue(did_login)
+
+        # create menu
+        self.create_restaurant(self.user)
+        self.create_menu(self.restaurant)
+
+        response = self.client.get(reverse('add_food_items', args=(self.menu.id,)))
+        self.assertEqual(response.status_code, 200)
 
     def test_should_be_able_to_add_items_to_menu(self):
         pass

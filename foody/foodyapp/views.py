@@ -1,6 +1,8 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, reverse
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseForbidden
+
+from .exceptions import FieldFormatIncorrect
 from .models import Restaurant, Menu, Order, FoodItem
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
@@ -191,10 +193,12 @@ def _add_food_items_to_database(data_dict, menu):
 
         if key.startswith('food_item_name'):
             name = data_dict[key]
-        if key.startswith('food_item_description'):
+        elif key.startswith('food_item_description'):
             description = data_dict[key]
-        if key.startswith('food_item_price'):
+        elif key.startswith('food_item_price'):
             price = data_dict[key]
+        else:
+            raise FieldFormatIncorrect("Field " + key + " is not in correct format!")
 
         if name != '' and description != '' and price != -1:
             item = FoodItem(name=name, description=description, price=price)
