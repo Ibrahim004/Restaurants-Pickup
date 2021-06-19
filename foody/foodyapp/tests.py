@@ -109,7 +109,16 @@ class RestaurantSignUpTest(TestCase):
     def create_user(self):
         self.user_password = 'password283838'
         self.user_username = 'user1'
-        User.objects.create_user(username=self.user_username, email='email@example.com', password=self.user_password)
+        self.user = User.objects.create_user(username=self.user_username, email='email@example.com', password=self.user_password)
+
+    def create_restaurant(self, user):
+        self.restaurant = Restaurant.objects.create(name='Great Value Restaurant', opening_time=time(hour=6),
+                                                    closing_time=time(hour=18),
+                                                    address='1234 Main Way, City, Province, Country', user=user)
+
+    def create_menu(self, restaurant):
+        self.menu = Menu.objects.create(title="Great Value Menu", from_time=time(hour=6), to_time=time(hour=21))
+        self.menu.restaurant_set.add(restaurant)
 
     def test_can_get_restaurant_signup_form_with_correct_fields(self):
         response = self.client.get(reverse('restaurant_signup'))
@@ -134,7 +143,6 @@ class RestaurantSignUpTest(TestCase):
         self.assertEqual(response.status_code, 302)
 
     def test_can_get_restaurant_info_form(self):
-
         login_was_successful = self.client.login(username=self.user_username, password=self.user_password)
 
         self.assertTrue(login_was_successful)
@@ -150,7 +158,6 @@ class RestaurantSignUpTest(TestCase):
         self.assertEqual(all_fields, form.Meta.fields)
 
     def test_restaurant_has_user_assigned_after_submitting_details(self):
-
         restaurant_details = {'name': 'Great Value Restaurant', 'address': '1234 CityRoad, City, Province, Postal Code',
                               'opening_time': time(hour=6), 'closing_time': time(hour=23), 'genre': 'BRK'}
 
@@ -166,7 +173,47 @@ class RestaurantSignUpTest(TestCase):
         self.assertIsNotNone(restaurant)
         self.assertIsNotNone(restaurant.user)
 
+    def test_menu_is_added_to_restaurant_after_submitting_menu_details(self):
+        # create a restaurant to contain the menu
+        self.create_restaurant(self.user)
+
+        # the details that will be submitted to the menu form
+        menu_details = {'title': "Great Value Menu", 'from_time': time(hour=6), 'to_time': time(hour=18)}
+
+        # login the user
+        login_was_successful = self.client.login(username=self.user_username, password=self.user_password)
+        self.assertTrue(login_was_successful)
+
+        # submit the menu details
+        response = self.client.post(reverse('restaurant_add_menu'), menu_details)
+
+        # check we are redirected after successfully submitting the menu
+        self.assertEqual(response.status_code, 302)
+
+        # check the menu has a restaurant associated with it
+        menu = Menu.objects.get(title=menu_details['title'])
+        self.assertEqual(menu.restaurant_set.count(), 1)
+
     def test_restaurant_should_only_be_able_to_edit_its_menu(self):
+        # login user
+        did_login = self.client.login(username=self.user_username, password=self.user_password)
+        self.assertTrue(did_login)
+
+        # create restaurant and menu
+        self.create_restaurant(self.user)
+        self.create_menu(self.restaurant)
+
+        # we should be able to edit the menu for our restaurant
+        food_items = {'food_item_name0': 'Fries', 'food_item_description0': 'great fries', 'food_item_price0': '2.99',
+                      'food_item_name1': 'Burger', 'food_item_description1': 'great burger', 'food_item_price1': '4.99'}
+        response = self.client.post(reverse('add_food_items', args=(self.menu.id,)), food_items)
+        self.assertEqual(response.status_code, 302)
+
+        # we should not be able to edit the menu for another restaurant
+        response = self.client.post(reverse('add_food_items', args=(100,)), food_items)
+        self.assertEqual(response.status_code, 403)
+
+    def test_should_return_error_if_submitting_food_items_in_wrong_format(self):
         pass
 
     def test_should_be_able_to_get_food_items_page(self):

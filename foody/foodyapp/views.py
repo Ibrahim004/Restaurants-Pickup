@@ -142,12 +142,15 @@ def add_restaurant_info(request):
 @login_required()
 def add_menu_info(request):
     user = request.user
+    restaurant = Restaurant.objects.get(user=user)
 
     if request.method == 'POST':
         form = MenuDetailsForm(request.POST)
 
         if form.is_valid():
             menu = form.save()
+            restaurant.menus.add(menu)
+            restaurant.save()
 
             return HttpResponseRedirect(reverse('add_food_items', args=(menu.id,)))
     else:
@@ -159,10 +162,10 @@ def add_menu_info(request):
 @login_required()
 def add_food_items(request, menu_id):
     user = request.user
-    menu = Menu.objects.get(id=menu_id)
     restaurant = Restaurant.objects.get(user=user)
 
     if restaurant.menus.filter(id=menu_id).exists():
+        menu = Menu.objects.get(id=menu_id)
         if request.method == 'POST':
             _add_food_items_to_database(request.POST, menu)
 
