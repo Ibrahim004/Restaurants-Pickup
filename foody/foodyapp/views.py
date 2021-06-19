@@ -119,6 +119,7 @@ def restaurant_login(request):
     pass
 
 
+@login_required()
 def add_restaurant_info(request):
     user = request.user
 
@@ -126,10 +127,12 @@ def add_restaurant_info(request):
         form = RestaurantDetailsForm(request.POST)
 
         if form.is_valid():
-            restaurant = form.save()
+            restaurant = form.save(commit=False)
             restaurant.user = user
+            restaurant.save()
 
             return HttpResponseRedirect(reverse('restaurant_add_menu'))
+
     else:
         form = RestaurantDetailsForm()
 

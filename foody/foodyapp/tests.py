@@ -1,4 +1,4 @@
-from django.test import TestCase
+from django.test import TestCase, Client
 from .models import *
 from datetime import time
 from django.shortcuts import reverse
@@ -103,6 +103,14 @@ class CustomerTest(TestCase):
 
 class RestaurantSignUpTest(TestCase):
 
+    def setUp(self) -> None:
+        self.create_user()
+
+    def create_user(self):
+        self.user_password = 'password283838'
+        self.user_username = 'user1'
+        User.objects.create_user(username=self.user_username, email='email@example.com', password=self.user_password)
+
     def test_can_get_restaurant_signup_form_with_correct_fields(self):
         response = self.client.get(reverse('restaurant_signup'))
 
@@ -120,9 +128,17 @@ class RestaurantSignUpTest(TestCase):
 
         response = self.client.post(reverse('restaurant_signup'), user)
 
+        retrieved_user = User.objects.get(username=user['username'])
+
+        self.assertIsNotNone(retrieved_user)
         self.assertEqual(response.status_code, 302)
 
     def test_can_get_restaurant_info_form(self):
+
+        login_was_successful = self.client.login(username=self.user_username, password=self.user_password)
+
+        self.assertTrue(login_was_successful)
+
         response = self.client.get(reverse('restaurant_add_info'))
         self.assertEqual(response.status_code, 200)
 
@@ -132,3 +148,29 @@ class RestaurantSignUpTest(TestCase):
         all_fields = ['name', 'address', 'opening_time', 'closing_time', 'genre']
 
         self.assertEqual(all_fields, form.Meta.fields)
+
+    def test_restaurant_has_user_assigned_after_submitting_details(self):
+
+        restaurant_details = {'name': 'Great Value Restaurant', 'address': '1234 CityRoad, City, Province, Postal Code',
+                              'opening_time': time(hour=6), 'closing_time': time(hour=23), 'genre': 'BRK'}
+
+        login_was_successful = self.client.login(username=self.user_username, password=self.user_password)
+
+        self.assertTrue(login_was_successful)
+
+        response = self.client.post(reverse('restaurant_add_info'), restaurant_details)
+
+        self.assertEqual(response.status_code, 302)
+
+        restaurant = Restaurant.objects.get(name=restaurant_details['name'])
+        self.assertIsNotNone(restaurant)
+        self.assertIsNotNone(restaurant.user)
+
+    def test_restaurant_should_only_be_able_to_edit_its_menu(self):
+        pass
+
+    def test_should_be_able_to_get_food_items_page(self):
+        pass
+
+    def test_should_be_able_to_add_items_to_menu(self):
+        pass
