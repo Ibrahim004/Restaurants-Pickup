@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Restaurant Login</title>
+</head>
+<body>
+{% if error_message %}
+{{ error_message }}
+{% endif %}
+<form method="post" action="{% url 'restaurant_login' %}">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <span>Don't have an account yet? <a href="{% url 'restaurant_signup' %}">Click here to sign up</a></span>
+    <input type="submit" value="Login">
+</form>
+</body>
+</html>

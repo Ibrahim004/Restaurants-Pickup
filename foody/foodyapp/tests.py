@@ -214,23 +214,6 @@ class RestaurantSignUpTest(TestCase):
         response = self.client.post(reverse('add_food_items', args=(100,)), food_items)
         self.assertEqual(response.status_code, 403)
 
-    def test_should_return_error_if_submitting_food_items_in_wrong_format(self):
-        # login user
-        did_login = self.client.login(username=self.user_username, password=self.user_password)
-        self.assertTrue(did_login)
-
-        # create restaurant and menu
-        self.create_restaurant(self.user)
-        self.create_menu(self.restaurant)
-
-        # food items in wrong format
-        food_items = {'name0': 'fries', 'description0': 'fries', 'price': '2.99', 'name1': 'burger',
-                      'description1': 'burger', 'price1': '4.99'}
-
-        # try to submit food items in wrong format
-        self.assertRaises(FieldFormatIncorrect,
-                          lambda: self.client.post(reverse('add_food_items', args=(self.menu.id,)), food_items))
-
     def test_should_be_able_to_get_food_items_page(self):
         # login user
         did_login = self.client.login(username=self.user_username, password=self.user_password)
@@ -245,3 +228,39 @@ class RestaurantSignUpTest(TestCase):
 
     def test_should_be_able_to_add_items_to_menu(self):
         pass
+
+    def test_menu_time_should_not_fall_outside_business_hours(self):
+        pass
+
+    def test_food_items_are_added_to_database_after_submitting_menu_details(self):
+        pass
+
+
+class RestaurantLoginTest(TestCase):
+
+    def setUp(self) -> None:
+        # create user for testing login
+        self.user_username = 'user1'
+        self.user_password = 'SomePassword1234'
+        User.objects.create_user(username=self.user_username, password=self.user_password)
+
+    def test_valid_user_should_be_able_to_login(self):
+
+        response = self.client.post(reverse('restaurant_login'), data={'username': self.user_username,
+                                                                       'password': self.user_password})
+        self.assertRedirects(response, reverse('restaurant_main_page'))
+
+    def test_invalid_user_login_attempt_should_not_redirect(self):
+        data = {'user': 'invalidUser', 'password': 'invalidPassword'}
+        response = self.client.post(reverse('restaurant_login'), data=data)
+        self.assertEqual(response.status_code, 200)
+
+    def test_already_logged_in_user_should_be_redirected_to_main_page(self):
+        # login user
+        did_login = self.client.login(username=self.user_username, password=self.user_password)
+        self.assertTrue(did_login)
+
+        data = {'username': self.user_username, 'password': self.user_password}
+        response = self.client.post(reverse('restaurant_login'), data)
+        self.assertRedirects(response, reverse('restaurant_main_page'))
+

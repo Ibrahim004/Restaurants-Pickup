@@ -4,7 +4,8 @@ from django.http import HttpResponse, HttpResponseRedirect, HttpResponseForbidde
 
 from .exceptions import FieldFormatIncorrect
 from .models import Restaurant, Menu, Order, FoodItem
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth import login
 from .forms import RestaurantSignUpForm, RestaurantDetailsForm, MenuDetailsForm
@@ -118,7 +119,31 @@ def restaurant_signup(request):
 
 
 def restaurant_login(request):
-    pass
+    if request.user.is_authenticated:
+        return HttpResponseRedirect(reverse('restaurant_main_page'))
+
+    if request.method == 'POST':
+        form = AuthenticationForm(request, data=request.POST)
+
+        if form.is_valid():
+            # login user?
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password')
+            user = authenticate(request, username=username, password=password)
+
+            if user is not None:
+                login(request, user)
+                return HttpResponseRedirect(reverse('restaurant_main_page'))
+
+    else:
+        form = AuthenticationForm()
+
+    return render(request, 'foodyapp/restaurant_login.html', {'form': form})
+
+
+def restaurant_logout(request):
+    logout(request)
+    return render(request, 'foodyapp/restaurants_logout_success.html')
 
 
 @login_required()
@@ -193,12 +218,10 @@ def _add_food_items_to_database(data_dict, menu):
 
         if key.startswith('food_item_name'):
             name = data_dict[key]
-        elif key.startswith('food_item_description'):
+        if key.startswith('food_item_description'):
             description = data_dict[key]
-        elif key.startswith('food_item_price'):
+        if key.startswith('food_item_price'):
             price = data_dict[key]
-        else:
-            raise FieldFormatIncorrect("Field " + key + " is not in correct format!")
 
         if name != '' and description != '' and price != -1:
             item = FoodItem(name=name, description=description, price=price)
@@ -209,3 +232,8 @@ def _add_food_items_to_database(data_dict, menu):
             name = ''
             description = ''
             price = -1
+
+
+def restaurant_main(request):
+    return HttpResponse("You have logged in successfully")
+    pass
