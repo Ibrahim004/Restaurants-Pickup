@@ -7,13 +7,13 @@ from datetime import time
 # helper functions to create mockup data for tests
 def create_restaurant_location():
     restaurant_location = Location.objects.create(country='Canada', province='BC', city='New Westminster',
-                                                  streetAddress='514 8th Ave', postal_code='V3L 2Y3')
+                                                  street_address='514 8th Ave', postal_code='V3L 2Y3')
     return restaurant_location
 
 
 def create_customer_location():
     customer_location = Location.objects.create(country='Canada', province='BC', city='Vancouver',
-                                                streetAddress='1234 W Broadway', postal_code='V6T 1Z4')
+                                                street_address='1234 W Broadway', postal_code='V6T 1Z4')
     return customer_location
 
 

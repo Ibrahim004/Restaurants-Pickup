@@ -9,7 +9,7 @@ from .exceptions import FieldFormatIncorrect
 class LocationTest(TestCase):
 
     def test_can_create_Location(self):
-        dennys = Location(country="Canada", city='Vancouver', province='BC', streetAddress='1759 W Broadway',
+        dennys = Location(country="Canada", city='Vancouver', province='BC', street_address='1759 W Broadway',
                           postal_code='V6J 1Y2')
         dennys.save()
         retrieved_location = Location.objects.get(id=dennys.id)
@@ -63,7 +63,7 @@ class RestaurantModelTest(TestCase):
 
     def setUp(self) -> None:
         self.location = Location.objects.create(country='Canada', province='British Columbia', city='Vancouver',
-                                                streetAddress='1759 W Broadway', postal_code='V6J 1Y2')
+                                                street_address='1759 W Broadway', postal_code='V6J 1Y2')
         self.breakfast_menu = Menu.objects.create(title='All Day Breakfast', from_time=time(hour=7),
                                                   to_time=time(hour=23))
 
@@ -89,7 +89,7 @@ class CustomerTest(TestCase):
 
     def setUp(self) -> None:
         self.location = Location.objects.create(country='Canada', province='BC', city='Vancouver',
-                                                postal_code='V6T 1Z4', streetAddress='1234 W Broadway')
+                                                postal_code='V6T 1Z4', street_address='1234 W Broadway')
 
     def test_can_create_customer(self):
         customer = Customer(first_name='John', last_name='Doe', location=self.location, phone_number='604-123-4567')

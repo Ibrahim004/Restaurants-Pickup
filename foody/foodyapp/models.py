@@ -43,7 +43,7 @@ class Location(models.Model):
     city = models.CharField(max_length=30)
     province = models.CharField(max_length=2, choices=CANADIAN_PROVINCES)
     country = models.CharField(max_length=20)
-    streetAddress = models.CharField(max_length=20)
+    street_address = models.CharField(max_length=20)
     postal_code = models.CharField(max_length=10)
 
     def __str__(self):
@@ -83,7 +83,7 @@ class Customer(models.Model):
     first_name = models.CharField(max_length=20)
     last_name = models.CharField(max_length=20)
     location = models.ForeignKey(Location, on_delete=models.SET_NULL, null=True)
-    phone_number = models.CharField(max_length=16)
+    phone_number = models.CharField(max_length=16, blank=True, null=True)
 
     def __str__(self):
         s = self.first_name + ' ' + self.last_name

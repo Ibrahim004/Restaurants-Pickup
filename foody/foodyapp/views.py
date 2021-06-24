@@ -8,7 +8,7 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth import login
-from .forms import RestaurantSignUpForm, RestaurantDetailsForm, MenuDetailsForm
+from .forms import SignUpForm, RestaurantDetailsForm, MenuDetailsForm
 
 
 def index(request):
@@ -102,7 +102,7 @@ def order_confirmation(request):
 def restaurant_signup(request):
     if request.method == 'POST':
         # take the post data and validate it
-        form = RestaurantSignUpForm(request.POST)
+        form = SignUpForm(request.POST)
 
         if form.is_valid():
             # sign the user up for an account
@@ -113,7 +113,7 @@ def restaurant_signup(request):
             return HttpResponseRedirect(reverse('restaurant_add_info'))
 
     else:
-        form = RestaurantSignUpForm()
+        form = SignUpForm()
 
     return render(request, 'foodyapp/restaurant_signup.html', {'form': form})
 
