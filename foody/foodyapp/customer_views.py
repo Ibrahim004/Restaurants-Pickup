@@ -9,6 +9,9 @@ from django.contrib.auth import login, logout
 
 
 def signup(request):
+    if request.user.is_authenticated:
+        return HttpResponseRedirect(reverse('restaurants'))
+
     if request.method == 'POST':
         form = SignUpForm(request.POST)
 
@@ -17,7 +20,7 @@ def signup(request):
             # login user
             login(request, user)
 
-            return HttpResponseRedirect(reverse('customer_add_info'))
+            return HttpResponseRedirect(reverse('add_customer_info'))
     else:
         form = SignUpForm()
 
@@ -45,6 +48,10 @@ def add_info(request):
 @login_required()
 def add_location(request):
     user = request.user
+
+    if not Customer.objects.filter(user=user).exists():
+        return HttpResponseRedirect(reverse('add_customer_info'))
+
     customer = Customer.objects.get(user=user)
 
     if request.method == 'POST':
@@ -61,6 +68,7 @@ def add_location(request):
         form = LocationDetailsForm()
 
     return render(request, 'foodyapp/customer_location.html', {'form': form})
+
 
 def customer_login(request):
     pass
