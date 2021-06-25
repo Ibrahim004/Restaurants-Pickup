@@ -82,10 +82,10 @@ class CustomerSignUpTests(TestCase):
         retrieved_location = Location.objects.get(postal_code=postal_code)
         self.assertTrue(retrieved_customer.location == retrieved_location)
 
-    def test_location_invalid_postal_code_should_return_error(self):
+    def test_location_invalid_postal_code_should_raise_error(self):
         pass
 
-    def test_customer_phone_number_should_be_valid_format(self):
+    def test_invalid_phone_number_should_raise_error(self):
         pass
 
 

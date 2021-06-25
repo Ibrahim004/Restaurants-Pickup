@@ -2,7 +2,7 @@ from django.test import TestCase, Client
 from .models import *
 from datetime import time
 from django.shortcuts import reverse
-from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from .exceptions import FieldFormatIncorrect
 
 
@@ -110,7 +110,8 @@ class RestaurantSignUpTest(TestCase):
     def create_user(self):
         self.user_password = 'password283838'
         self.user_username = 'user1'
-        self.user = User.objects.create_user(username=self.user_username, email='email@example.com', password=self.user_password)
+        self.user = User.objects.create_user(username=self.user_username, email='email@example.com',
+                                             password=self.user_password)
 
     def create_restaurant(self, user):
         self.restaurant = Restaurant.objects.create(name='Great Value Restaurant', opening_time=time(hour=6),
@@ -236,16 +237,63 @@ class RestaurantSignUpTest(TestCase):
         pass
 
 
-class RestaurantLoginTest(TestCase):
+class UserLoginTest(TestCase):
 
     def setUp(self) -> None:
+        self.create_user()
+
+    def create_user(self):
         # create user for testing login
         self.user_username = 'user1'
         self.user_password = 'SomePassword1234'
-        User.objects.create_user(username=self.user_username, password=self.user_password)
+        self.user = User.objects.create_user(username=self.user_username, password=self.user_password)
+
+    def _check_response_is_valid_login_response(self, response):
+        self.assertEqual(response.status_code, 200)
+        form = response.context['form']
+        self.assertIsNotNone(form)
+        form_type = type(form)
+        self.assertEqual(form_type, AuthenticationForm)
+
+    def test_customer_should_be_able_to_get_login_page(self):
+        response = self.client.get(reverse('customer_login'))
+        self._check_response_is_valid_login_response(response)
+
+    def test_restaurant_should_be_able_to_get_login_page(self):
+        response = self.client.get(reverse('restaurant_login'))
+        self._check_response_is_valid_login_response(response)
+
+    def test_invalid_user_should_not_be_logged_in(self):
+        user = {'username': 'invalid_username', 'password': 'invalid_password'}
+
+        # invalid customer login
+        response = self.client.post(reverse('customer_login'), data=user)
+        form = response.context['form']
+        self.assertIsNotNone(form)
+        errors = form.errors
+        self.assertIsNotNone(errors)
+
+    def test_redirect_should_be_based_on_user_type(self):
+        pass
+
+    def test_requesting_restaurant_login_when_user_is_customer_should_redirect_correctly(self):
+        pass
+
+
+class RestaurantLoginTest(UserLoginTest):
+
+    def setUp(self) -> None:
+        self.create_user()
+        self.create_restaurant()
+
+    def create_restaurant(self):
+        # create restaurant
+        self.restaurant = Restaurant.objects.create(name='Great Value Restaurant', address='1234 Some Street',
+                                                    opening_time=time(hour=6), closing_time=time(hour=21))
+        self.restaurant.user = self.user
+        self.restaurant.save()
 
     def test_valid_user_should_be_able_to_login(self):
-
         response = self.client.post(reverse('restaurant_login'), data={'username': self.user_username,
                                                                        'password': self.user_password})
         self.assertRedirects(response, reverse('restaurant_main_page'))
@@ -264,3 +312,27 @@ class RestaurantLoginTest(TestCase):
         response = self.client.post(reverse('restaurant_login'), data)
         self.assertRedirects(response, reverse('restaurant_main_page'))
 
+    def test_valid_restaurant_should_be_able_to_login(self):
+        restaurant_user = {'username': self.user_username, 'password': self.user_password}
+        # check restaurant_login
+        response = self.client.post(reverse('restaurant_login'), data=restaurant_user)
+        self.assertRedirects(response, reverse('restaurant_main_page'))
+
+
+class CustomerLoginTest(UserLoginTest):
+
+    def setUp(self) -> None:
+        self.create_user()
+        self.create_customer()
+
+    def create_customer(self):
+        self.customer = Customer.objects.create(first_name='John', last_name='Doe', phone_number='111-222-3333')
+        self.customer.user = self.user
+        self.customer.save()
+
+    def test_valid_customer_should_be_able_to_login(self):
+        customer_user = {'username': self.user_username, 'password': self.user_password}
+
+        # check customer login
+        response = self.client.post(reverse('customer_login'), data=customer_user)
+        self.assertRedirects(response, reverse('customer_login_success'))

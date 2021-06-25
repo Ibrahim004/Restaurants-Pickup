@@ -3,7 +3,7 @@ from django.shortcuts import render, reverse
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseForbidden
 
 from .exceptions import FieldFormatIncorrect
-from .models import Restaurant, Menu, Order, FoodItem
+from .models import Restaurant, Menu, Order, FoodItem, Customer
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
@@ -118,32 +118,57 @@ def restaurant_signup(request):
     return render(request, 'foodyapp/restaurant_signup.html', {'form': form})
 
 
-def restaurant_login(request):
-    if request.user.is_authenticated:
-        return HttpResponseRedirect(reverse('restaurant_main_page'))
+# redirect user after logging in based on user type
+# user can be either restaurant or customer user for now (25/06/2021)
+def _get_redirect_path(user):
+    if Restaurant.objects.filter(user=user).exists():
+        return reverse('restaurant_main_page')
+    elif Customer.objects.filter(user=user).exists():
+        return reverse('customer_login_success')
+    else:
+        assert False
+
+
+def _get_template_path(path):
+    if 'restaurant' in path:
+        return 'foodyapp/restaurant_login.html'
+    elif 'customer' in path:
+        return 'foodyapp/customer_login.html'
+    else:
+        assert False
+
+
+def login_view(request):
+    user = request.user
+    if user.is_authenticated:
+        # redirect based on user type
+        redirect_path = _get_redirect_path(user)
+        return HttpResponseRedirect(redirect_path)
 
     if request.method == 'POST':
         form = AuthenticationForm(request, data=request.POST)
 
         if form.is_valid():
-            # login user?
-            username = form.cleaned_data.get('username')
-            password = form.cleaned_data.get('password')
-            user = authenticate(request, username=username, password=password)
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password']
+
+            user = authenticate(username=username, password=password)
 
             if user is not None:
                 login(request, user)
-                return HttpResponseRedirect(reverse('restaurant_main_page'))
-
+                # redirect based on user type
+                redirect_path = _get_redirect_path(user)
+                return HttpResponseRedirect(redirect_path)
     else:
         form = AuthenticationForm()
 
-    return render(request, 'foodyapp/restaurant_login.html', {'form': form})
+    template_path = _get_template_path(request.path)
+    return render(request, template_path, {'form': form})
 
 
-def restaurant_logout(request):
+def user_logout(request):
     logout(request)
-    return render(request, 'foodyapp/restaurants_logout_success.html')
+    return render(request, 'foodyapp/logout_success.html')
 
 
 @login_required()

@@ -5,7 +5,8 @@ from .forms import SignUpForm, CustomerDetailsForm, LocationDetailsForm
 from .models import Customer
 
 from django.shortcuts import render, reverse
-from django.contrib.auth import login, logout
+from django.contrib.auth import login, logout, authenticate
+from django.contrib.auth.forms import AuthenticationForm
 
 
 def signup(request):
@@ -70,5 +71,9 @@ def add_location(request):
     return render(request, 'foodyapp/customer_location.html', {'form': form})
 
 
-def customer_login(request):
-    pass
+def main(request):
+    if request.user.is_authenticated:
+        pass
+    else:
+        pass
+    return HttpResponse("You are at the customer main page!")

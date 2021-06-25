@@ -1,10 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
+    <meta charset="UTF-8">
+    <title>Customer Login</title>
 </head>
 <body>
-$END$
+<form method="post" action="{% url 'customer_login' %}">
+    {{ form.as_p }}
+    <span>Don't have an account? <a href="{% url 'customer_signup' %}">Click here to signup!</a></span>
+    <input type="submit" value="Login">
+</form>
 </body>
 </html>
