@@ -3,7 +3,7 @@ from django.shortcuts import render, reverse
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseForbidden
 
 from .exceptions import FieldFormatIncorrect
-from .models import Restaurant, Menu, Order, FoodItem, Customer
+from .models import Restaurant, Menu, Order, FoodItem, Customer, RestaurantTaxRate, OrderFoodItem
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
@@ -58,30 +58,61 @@ def get_menu_details(request, menu_id):
 #     return render(request, 'foodyapp/order_details.html', context)
 
 
+# order_items is a dictionary with food_item and quantity
+def _calculate_subtotal(order_items):
+    sub_total = 0
+    for item in order_items:
+        sub_total += (item.quantity * item.food_item.price)
+    # for item, quantity in order_items.items():
+    #     sub_total += item.price * quantity
+    return sub_total
+
+
+# adds tax on order based on restaurant location
+def _get_total(location, subtotal):
+    province = location.province
+    tax_rate = RestaurantTaxRate.tax_rate[province]
+    return subtotal * (1 + float(tax_rate)/100.0)
+
+
+# set the food_items property on order object using keys from order_items dictionary
+def _set_items(order, order_items):
+    order.items.set(order_items)
+    order.save()
+
+
+# returns the list of OrderFoodItem elements
+def _get_order_items(menu, data):
+    # order_items = dict()
+    order_items = []
+    for food_item in menu.fooditem_set.all():
+        count = int(data[food_item.name])
+        if count > 0:
+            item = OrderFoodItem(quantity=count, food_item=food_item)
+            item.save()
+            order_items.append(item)
+            # order_items[food_item] = count
+    return order_items
+
+
 def submit_order(request, restaurant_id, menu_id):
     # take order details
     menu = Menu.objects.get(id=menu_id)
     restaurant = Restaurant.objects.get(id=restaurant_id)
 
-    items = []
-    quantity = []
-
-    for fooditem in menu.fooditem_set.all():
-        count = int(request.POST[fooditem.name])
-        if count > 0:
-            items.append(fooditem)
-            quantity.append(count)
+    # get the items from post data
+    order_items = _get_order_items(menu, request.POST)
 
     # calculate subtotal
-    subtotal = 0
-    for i in range(len(items)):
-        subtotal += (items[i].price * quantity[i])
+    subtotal = _calculate_subtotal(order_items)
+
+    # calculate total
+    total = _get_total(restaurant.location, subtotal)
 
     # create an order record
-    order = Order(restaurant=restaurant, order_total=subtotal)
+    order = Order(restaurant=restaurant, order_total=total)
     order.save()
-    order.food_items.set(items)
-    order.save()
+    _set_items(order, order_items)
 
     # todo: send order details to restaurant
 

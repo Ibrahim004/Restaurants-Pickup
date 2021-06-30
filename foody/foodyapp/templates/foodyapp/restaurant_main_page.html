@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Restaurant Main</title>
+</head>
+<body>
+<h1>Current orders:</h1>
+<ul>
+    {% for order in orders %}
+    {% if order.status == 'SUB' %}
+    <li>
+        <div>
+            {{ order.customer.first_name }}
+            <ul>Items:
+                {% for item in order.food_items %}
+                <li></li>
+
+                {% endfor %}
+            </ul>
+
+        </div>
+    </li>
+    {% endfor %}
+</ul>
+
+
+</body>
+</html>

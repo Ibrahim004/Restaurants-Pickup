@@ -47,7 +47,8 @@ class Location(models.Model):
     postal_code = models.CharField(max_length=10)
 
     def __str__(self):
-        s = self.streetAddress + ", " + self.city + ', ' + self.province + ', ' + self.country + ', ' + self.postal_code
+        s = self.street_address + ", " + self.city + ', ' + self.province + ', ' + self.country + ', ' \
+            + self.postal_code
         return s
 
 
@@ -72,10 +73,10 @@ class FoodItem(models.Model):
     menu = models.ForeignKey(Menu, on_delete=models.CASCADE, null=True)
 
     def __str__(self):
-        s = self.name
-        if self.description:
-            s += ': ' + self.description
-        return s
+        if self.menu is not None:
+            return str(self.menu.title) + ": " + self.name
+        else:
+            return str(self.name)
 
 
 class Customer(models.Model):
@@ -90,13 +91,45 @@ class Customer(models.Model):
         return s
 
 
+class OrderFoodItem(models.Model):
+    quantity = models.IntegerField(default=0)
+    food_item = models.ForeignKey(FoodItem, on_delete=models.PROTECT)
+
+    def __str__(self):
+        return self.food_item.name + ": " + str(self.quantity)
+
+
 class Order(models.Model):
+    ORDER_STATUS = [('SUB', 'submitted'),
+                    ('PRG', "In progress"),
+                    ('CMP', "Completed")]
     restaurant = models.ForeignKey(Restaurant, on_delete=models.SET_NULL, null=True)
-    food_items = models.ManyToManyField(FoodItem)
+    # food_items = models.ManyToManyField(FoodItem)
+    items = models.ManyToManyField(OrderFoodItem)
     customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True)
     date_and_time = models.DateTimeField(editable=False, auto_now_add=True)
     order_total = models.FloatField(editable=False)
+    status = models.CharField(max_length=3, choices=ORDER_STATUS, default='SUB')
+
     # todo: implement rating field to allow customer to add rating to order
 
     def __str__(self):
         return "Order number: " + str(self.id)
+
+
+class RestaurantTaxRate:
+    tax_rate = {
+        "BC": 5,
+        "AB": 5,
+        "MB": 12,
+        "NB": 15,
+        "NL": 15,
+        "NS": 15,
+        "ON": 13,
+        "PE": 15,
+        "QC": 14.975,
+        "SK": 11,
+        "NT": 5,
+        "NU": 5,
+        "YK": 5
+    }

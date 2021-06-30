@@ -1,5 +1,5 @@
 from django.test import TestCase
-from .models import Restaurant, Menu, FoodItem, Order, Location, Customer
+from .models import Restaurant, Menu, FoodItem, Order, Location, Customer, OrderFoodItem
 from django.shortcuts import reverse
 from datetime import time
 
@@ -29,8 +29,8 @@ def create_restaurant():
     restaurant_menu = create_restaurant_menu()
 
     restaurant = Restaurant(name="iHop", opening_time=time(hour=7), closing_time=time(hour=20),
-                                 address='514 8th Ave, New Westminster, BC V3L 2Y3',
-                                 location=restaurant_location, genre='Breakfast')
+                            address='514 8th Ave, New Westminster, BC V3L 2Y3',
+                            location=restaurant_location, genre='Breakfast')
     restaurant.save()
     restaurant.menus.add(restaurant_menu)
     restaurant.save()
@@ -57,17 +57,23 @@ class OrderTest(TestCase):
         self.restaurant = create_restaurant()
         self.customer = create_customer()
 
+    # adds the price for all food_items and returns it
+    def _get_subtotal(self, food_items):
+        subtotal = 0
+        for item in food_items:
+            subtotal += item.price
+        return subtotal
+
     def test_can_create_order_and_get_total(self):
         order = Order(restaurant=self.restaurant, customer=self.customer, order_total=0)
         order.save()
 
         # order everything from the restaurant
-        food_items = self.restaurant.menus.all()[0].fooditem_set.all()
-        order.food_items.set(food_items)
+        food_items = self.restaurant.menus.first().fooditem_set.all()
+        order_food_items = [OrderFoodItem.objects.create(quantity=1, food_item=item) for item in food_items]
+        order.items.set(order_food_items)
 
-        total = 0
-        for item in food_items:
-            total += item.price
+        total = self._get_subtotal(food_items)
 
         order.order_total = total
         order.save()
@@ -104,6 +110,9 @@ class ViewTest(TestCase):
             item_quantity[fooditem.name] = 2
             total += (2 * fooditem.price)
 
+        # todo: total calculation should reflect the restaurant location
+        total *= 1.05
+
         response = self.client.post(reverse('submit_order', args=(restaurant.id, menu.id,)), item_quantity)
 
         # check we are redirected correctly
@@ -115,9 +124,10 @@ class ViewTest(TestCase):
         self.assertIsNotNone(order)
 
         # check all items were added
-        all_items = order.food_items.all()
+        all_items = order.items.all()
+        all_food_items = [item.food_item for item in all_items]
         for item in menu.fooditem_set.all():
-            self.assertTrue(item in all_items)
+            self.assertTrue(item in all_food_items)
 
         # check that total is correct
         self.assertEqual(total, order.order_total)
